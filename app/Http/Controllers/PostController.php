@@ -8,6 +8,8 @@ use App\Post;
 
 use Illuminate\Support\Str;
 
+use Illuminate\Support\Facades\Validator;
+
 class PostController extends Controller
 {
     /**
@@ -49,11 +51,35 @@ class PostController extends Controller
         $data['slug'] = Str::slug($data['title'] , '-');
         // dd($data);
         // dd($request->all());
+
+        $validator = Validator::make($data, [
+            'title' => 'required|string|max:150',
+            'body' => 'required',
+            'author' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect('posts/create')
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        // $request->validate([
+        //     'title' => 'required|string|max:150',
+        //     'body' => 'required',
+        //     'author' => 'required'
+        // ]);
+
+
+
         $post = new Post;
         // $post->title = $data['title'];
         $post->fill($data);
-        $post->save();
-        dd($post);
+        $saved = $post->save();
+        if(!$saved) {
+            dd('errore di salvataggio');
+        }
+        return redirect()->route('posts.show', $post->id);
     }
 
     /**
@@ -62,9 +88,14 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show($slug)
     {
-        //
+        // $post = Post::find($id);
+        $post = Post::where('slug', $slug)->first();
+        if(empty($post)) {
+            abort('404');
+        }
+        return view('posts.show', compact('post'));
     }
 
     /**
