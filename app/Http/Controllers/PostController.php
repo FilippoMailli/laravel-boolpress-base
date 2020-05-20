@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 
 use App\Post;
 
-
 class PostController extends Controller
 {
     /**
@@ -17,14 +16,13 @@ class PostController extends Controller
      public function index()
      {
          $posts = Post::all();
-         // dd($posts);
          return view('posts.index', compact('posts'));
      }
 
-     public function published()
+     public function indexPublished()
      {
-         $posts_published = Post::where('published', '1')->get();
-         return view('posts.published', compact('posts_published'));
+         $posts = Post::where('published', '1')->get();
+         return view('posts.index', compact('posts'));
      }
 
     /**
