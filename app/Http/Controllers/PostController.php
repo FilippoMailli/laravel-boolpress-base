@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 
 use App\Post;
 
+use Illuminate\Support\Str;
+
 class PostController extends Controller
 {
     /**
@@ -21,7 +23,7 @@ class PostController extends Controller
 
      public function indexPublished()
      {
-         $posts = Post::where('published', '1')->get();
+         $posts = Post::where('published', true)->get();
          return view('posts.index', compact('posts'));
      }
 
@@ -32,7 +34,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('posts.create');
     }
 
     /**
@@ -43,7 +45,15 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->all();
+        $data['slug'] = Str::slug($data['title'] , '-');
+        // dd($data);
+        // dd($request->all());
+        $post = new Post;
+        // $post->title = $data['title'];
+        $post->fill($data);
+        $post->save();
+        dd($post);
     }
 
     /**
