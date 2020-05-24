@@ -23,7 +23,10 @@
                   <td>Scritto da {{$post->author}}</td>
                   <td><a href="{{route('posts.edit', $post->id)}}">Modifica</a></td>
                   <td><a href="{{route('posts.show', $post->slug)}}">Visualizza</a></td>
-                  <td>Elimina</td>
+                  <td><form action="{{route('posts.destroy', $post->id)}}" method="POST">
+                    @method('DELETE')
+                    @csrf
+                    <button type="submit">Elimina</button></form></td>
                 </tr>
             @endforeach
           </tbody>
