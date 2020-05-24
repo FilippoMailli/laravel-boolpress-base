@@ -124,7 +124,38 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        $post = post::find($id);
+
+        if(empty($post)) {
+            abort('404');
+        }
+
+        $data = $request->all();
+        $now = Carbon::now()->format('Y-m-d-H-i-s');
+
+        $data['slug'] = Str::slug($data['title'], '-') . $now;
+
+        $validator = Validator::make($data, [
+            'title' => 'required|string|max:150',
+            'body' => 'required',
+            'author' => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->route('posts.edit')
+                ->withErrors($validator)
+                ->withInput();
+        }
+
+        if (empty($data['img'])) {
+            unset($data['img']);
+            // $data['img'] = 'mio path';
+        }
+
+        $post->fill($data);
+        $updated = $post->update();
+
+        return redirect()->route('posts.show', $post->slug);
     }
 
     /**
