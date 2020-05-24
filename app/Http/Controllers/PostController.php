@@ -9,6 +9,7 @@ use App\Post;
 use Illuminate\Support\Str;
 
 use Illuminate\Support\Facades\Validator;
+use Carbon\Carbon;
 
 class PostController extends Controller
 {
@@ -48,7 +49,8 @@ class PostController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        $data['slug'] = Str::slug($data['title'] , '-');
+        $now = Carbon::now()->format('Y-m-d-H-i-s');
+        $data['slug'] = Str::slug($data['title'] , '-') . $now;
         // dd($data);
         // dd($request->all());
 
@@ -59,7 +61,7 @@ class PostController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return redirect('posts/create')
+            return redirect()->route('posts.create')
                         ->withErrors($validator)
                         ->withInput();
         }
@@ -79,7 +81,7 @@ class PostController extends Controller
         if(!$saved) {
             dd('errore di salvataggio');
         }
-        return redirect()->route('posts.show', $post->id);
+        return redirect()->route('posts.show', $post->slug);
     }
 
     /**
@@ -104,9 +106,13 @@ class PostController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Post $post)
     {
-        //
+        if(empty($post)) {
+            abort('404');
+        }
+
+        return view('posts.edit', compact('post'));
     }
 
     /**
